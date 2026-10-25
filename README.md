@@ -1,14 +1,16 @@
-# 2026 IEEE Big Data — Traffic Flow Bench (`LWR/FD Physics + Shockwave Queue + IPF ODME`)
+# TrafficFlowBench 2026 — 4-Architecture Multi-Task Spatio-Temporal Ensemble (IEEE Big Data Cup 2026)
 
-Official open-source repository for **IEEE Big Data Cup 2026 (Challenge 06): 2026 IEEE Big Data-Traffic Flow Bench**.
+Official solution repository for the **2026 IEEE Big Data-Traffic Flow Bench** (`https://www.kaggle.com/competitions/2026-ieee-big-data-traffic-flow-bench`), uniting three interdependent freeway network tasks across `6,980,503` evaluation rows:
 
-## Coupled 4-Task Architecture
-1. **Task 1 & Task 3 (`S_state` + `S_physics`):** Bidirectional spatio-temporal kinematic wave (`LWR`) interpolation projected onto each link's triangular Fundamental Diagram (`fd_parameters.csv`) across all 10 freeway corridors (`D7_I10_E..D12_I405_S`).
-2. **Task 2 (`S_queue`):** Shockwave propagation velocity (`w = \Delta q / \Delta k`) + boundary bottleneck congestion detector for 30-minute queue forecasting.
-3. **Task 4 (`S_ODME`):** Multiplicative Iterative Proportional Fitting (`IPF`) anchored to the weak prior `b` and observed link counts `c`.
+1. **Task 1 — Spatio-Temporal State Estimation (`state`, `6,735,795` rows)**:
+   - Joint estimation of freeway link `speed_kmh` and `flow_vph` across diverse sensor mask regimes (`spatial`, `temporal`, `random`).
+   - Convex multi-architecture blend combining Spatio-Temporal Graph GBDT (`yeashu`, weight `0.50`), Cross-Station Lagged LightGBM/CatBoost (`sujan`, weight `0.30`), Bidirectional Temporal Kinematic Reconstructor (`souke`, weight `0.13`), and Shockwave-Aware Regressor (`yuni`, weight `0.07`).
+2. **Task 2 — Bottleneck Queue Detection (`queue`, `174,000` rows)**:
+   - Binary congestion shockwave classification (`queue_pred` $\in \{0, 1\}$) via calibrated weighted majority voting (`0.45 / 0.30 / 0.15 / 0.10 >= 0.50`) across all 4 diverse architectures to directly optimize classification F1/Accuracy without probability blurring.
+3. **Task 3 — Origin-Destination Matrix Estimation (`odme`, `70,708` rows)**:
+   - Non-negative path flow reconstruction (`path_flow >= 0`) preserving conservation constraints across origin-destination corridors.
 
 ## Reproducibility
 ```bash
-pip install -r requirements.txt
-python trafficflowbench_solver.py
+python build_and_submit_traffic.py
 ```
